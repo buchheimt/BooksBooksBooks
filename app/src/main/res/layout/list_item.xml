@@ -5,11 +5,13 @@
     android:id="@+id/list_item">
 
     <TextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Harry Potter"/>
 
     <TextView
+        android:id="@+id/author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="J.K. Rowling" />

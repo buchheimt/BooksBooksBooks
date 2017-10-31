@@ -15,10 +15,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ArrayList<String> books = new ArrayList<String>();
-        books.add("dummy book");
-        books.add("dummy book");
-        books.add("dummy book");
+        ArrayList<Book> books = new ArrayList<Book>();
+        books.add(new Book("Chamber of Secrets", "J.K. Rowling"));
+        books.add(new Book("Goblet of Fire", "J.K. Rowling"));
+        books.add(new Book("Half-Blood Prince", "J.K. Rowling"));
+        books.add(new Book("A Game of Thrones", "George R.R. Martin"));
+        books.add(new Book("A Clash of Kings", "George R.R. Martin"));
+        books.add(new Book("A Storm of Swords", "George R.R. Martin"));
 
         ListView bookListView = (ListView) findViewById(R.id.list);
         mAdapter = new BookAdapter(this, books);
