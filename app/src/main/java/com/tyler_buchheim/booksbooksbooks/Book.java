@@ -8,10 +8,14 @@ public class Book {
 
     private String mTitle;
     private String mAuthor;
+    private String mUrl;
+    private String mPageCount;
 
-    public Book(String title, String author) {
+    public Book(String title, String author, String url, String pageCount) {
         mTitle = title;
         mAuthor = author;
+        mUrl = url;
+        mPageCount = pageCount;
     }
 
     public String getTitle() {
@@ -20,5 +24,13 @@ public class Book {
 
     public String getAuthor() {
         return mAuthor;
+    }
+
+    public String getUrl() {
+        return mUrl;
+    }
+
+    public String getPageCount() {
+        return mPageCount;
     }
 }

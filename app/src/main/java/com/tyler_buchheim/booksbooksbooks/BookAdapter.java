@@ -38,6 +38,9 @@ public class BookAdapter extends ArrayAdapter<Book> {
         TextView authorView = listItemView.findViewById(R.id.author);
         authorView.setText(currentBook.getAuthor());
 
+        TextView pageCountView = listItemView.findViewById(R.id.page_count);
+        pageCountView.setText(currentBook.getPageCount());
+
         return listItemView;
     }
 }
