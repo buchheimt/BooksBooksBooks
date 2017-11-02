@@ -128,7 +128,7 @@ public final class QueryUtils {
 
 
     public static ArrayList<Book> extractBooks(String bookJSON) {
-        bookJSON = SAMPLE_JSON_RESPONSE;
+
         if (TextUtils.isEmpty(bookJSON)) {
             return null;
         }
