@@ -116,18 +116,36 @@ public final class QueryUtils {
                 JSONObject book = items.getJSONObject(i);
                 JSONObject volumeInfo = book.getJSONObject("volumeInfo");
 
-                JSONArray authorList = volumeInfo.getJSONArray("authors");
-                StringBuilder authors = new StringBuilder();
-                for (int j = 0; j < authorList.length() - 1; j++) {
-                    authors.append(authorList.getString(j));
-                    authors.append(", ");
-                }
-                authors.append(authorList.getString(authorList.length() - 1));
-
                 String title = volumeInfo.getString("title");
-                String pageCount = volumeInfo.getString("pageCount") + " pages";
 
-                books.add(new Book(title, authors.toString(), pageCount));
+                String authors = null;
+                try {
+                    JSONArray authorList = volumeInfo.getJSONArray("authors");
+                    StringBuilder authorsBuilder = new StringBuilder();
+                    for (int j = 0; j < authorList.length() - 1; j++) {
+                        authorsBuilder.append(authorList.getString(j));
+                        authorsBuilder.append(", ");
+                    }
+                    authorsBuilder.append(authorList.getString(authorList.length() - 1));
+                    authors = authorsBuilder.toString();
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, "No authors array for: " + book.toString());
+                }
+                if (authors == null) {
+                    authors = "Unknown";
+                }
+
+                String pageCount = null;
+                try {
+                    pageCount = volumeInfo.getString("pageCount") + " pages";
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, "No pageCount for: " + book.toString());
+                }
+                if (pageCount == null) {
+                    pageCount = "Unknown";
+                }
+
+                books.add(new Book(title, authors, pageCount));
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "There was an error during JSON parsing: " + e);
