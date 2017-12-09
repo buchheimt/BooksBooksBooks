@@ -1,10 +1,9 @@
 package com.tyler_buchheim.booksbooksbooks;
 
 import android.content.Context;
-import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,13 +11,9 @@ import android.widget.ListView;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.ProgressBar;
-import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,30 +30,45 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         setContentView(R.layout.activity_main);
 
         ListView bookListView = (ListView) findViewById(R.id.list);
+        final TextView emptyView = (TextView) findViewById(R.id.empty);
+        mAdapter = new BookAdapter(this, new ArrayList<Book>());
+
+        // Save state of scroll to preserve position on rotation
+        Parcelable state = bookListView.onSaveInstanceState();
+
+        bookListView.setAdapter(mAdapter);
         bookListView.setEmptyView(findViewById(R.id.empty));
 
-        mAdapter = new BookAdapter(this, new ArrayList<Book>());
-        bookListView.setAdapter(mAdapter);
+        // Initialize loader if there is a connection or set empty view text
+        final ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo initialNetworkInfo = connMgr.getActiveNetworkInfo();
+        if (initialNetworkInfo != null && initialNetworkInfo.isConnected()) {
+            getLoaderManager().initLoader(0, null, this);
+        } else {
+            mAdapter.clear();
+            emptyView.setText(R.string.no_connection);
+        }
 
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        final NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-        getLoaderManager().initLoader(0, null, MainActivity.this);
+        // Restore scroll state on rotation
+        bookListView.onRestoreInstanceState(state);
 
         final EditText searchTextView = (EditText) findViewById(R.id.search_field);
         Button searchButton = (Button) findViewById(R.id.search_button);
+
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-                progressBar.setVisibility(View.VISIBLE);
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
                 mSearchParam = searchTextView.getText().toString();
+
+                // Restart loader with new search if connected or clear adapter and set empty text
                 if (networkInfo != null && networkInfo.isConnected()) {
                     getLoaderManager().restartLoader(0, null, MainActivity.this);
+                    findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
                 } else {
+                    mAdapter.clear();
                     findViewById(R.id.progress_bar).setVisibility(GONE);
-                    TextView emptyView = (TextView) findViewById(R.id.empty);
-                    emptyView.setText("No Internet Connection");
+                    emptyView.setText(R.string.no_connection);
                 }
             }
         });
@@ -72,15 +82,17 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
     @Override
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> books) {
         mAdapter.clear();
+        TextView emptyView = (TextView) findViewById(R.id.empty);
 
-        if (books != null && !books.isEmpty()) {
+        if (books == null) {
+            emptyView.setText(R.string.no_search_term);
+        } else if (books.isEmpty()) {
+            emptyView.setText(R.string.no_results);
+        } else {
             mAdapter.addAll(books);
         }
 
-        TextView emptyView = (TextView) findViewById(R.id.empty);
-        emptyView.setText("No books were found...");
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        progressBar.setVisibility(GONE);
+        findViewById(R.id.progress_bar).setVisibility(GONE);
     }
 
     @Override

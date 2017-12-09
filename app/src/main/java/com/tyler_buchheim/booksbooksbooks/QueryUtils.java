@@ -2,11 +2,9 @@ package com.tyler_buchheim.booksbooksbooks;
 
 import android.text.TextUtils;
 import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,17 +15,12 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-/**
- * Created by buchh on 10/30/2017.
- */
-
 public final class QueryUtils {
 
     private static final String BASE_URL_STRING = "https://www.googleapis.com/books/v1/";
+    private static final String LOG_TAG = QueryUtils.class.getName();
 
-    private QueryUtils() {
-
-    }
+    private QueryUtils() {}
 
     public static ArrayList<Book> fetchBookData(String searchParam) {
         URL url = createFullUrl(searchParam);
@@ -36,7 +29,7 @@ public final class QueryUtils {
         try {
             jsonResponse = makeHttpRequest(url);
         } catch (IOException e) {
-            Log.e("QueryUtils", "The HTTP connection failed: " + e);
+            Log.e(LOG_TAG, "The HTTP connection failed: " + e);
         }
 
         return extractBooks(jsonResponse);
@@ -44,12 +37,14 @@ public final class QueryUtils {
 
     private static URL createFullUrl(String searchParam) {
         URL url = null;
+
         try {
             URL baseURL = new URL(BASE_URL_STRING);
             url = new URL(baseURL, "volumes?q=" + searchParam);
         } catch (MalformedURLException e) {
-            Log.e("QueryUtils", "There was an error formatting your url: " + e);
+            Log.e(LOG_TAG, "There was an error formatting url: " + e);
         }
+
         return url;
     }
 
@@ -72,10 +67,10 @@ public final class QueryUtils {
                 inputStream = urlConnection.getInputStream();
                 jsonResponse = readFromStream(inputStream);
             } else {
-                Log.e("QueryUtils", "Connection did not return a 200 ok response, URL: " + url.toString());
+                Log.e(LOG_TAG, "Connection did not return a 200 ok response, URL: " + url.toString());
             }
         } catch (IOException e) {
-            Log.e("QueryUtils", "There was an error connecting to the Google API: " + e);
+            Log.e(LOG_TAG, "There was an error connecting to the Google API: " + e);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -90,6 +85,7 @@ public final class QueryUtils {
 
     private static String readFromStream(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
+
         if (inputStream != null) {
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream,
                     Charset.forName("UTF-8"));
@@ -100,13 +96,14 @@ public final class QueryUtils {
                 line = reader.readLine();
             }
         }
+
         return output.toString();
     }
 
 
     private static ArrayList<Book> extractBooks(String bookJSON) {
 
-        if (TextUtils.isEmpty(bookJSON)) {
+        if (bookJSON.isEmpty()) {
             return null;
         }
 
@@ -120,20 +117,20 @@ public final class QueryUtils {
                 JSONObject volumeInfo = book.getJSONObject("volumeInfo");
 
                 JSONArray authorList = volumeInfo.getJSONArray("authors");
-                String authors = "";
+                StringBuilder authors = new StringBuilder();
                 for (int j = 0; j < authorList.length() - 1; j++) {
-                    authors += authorList.getString(j) + ", ";
+                    authors.append(authorList.getString(j));
+                    authors.append(", ");
                 }
-                authors += authorList.getString(authorList.length() - 1);
+                authors.append(authorList.getString(authorList.length() - 1));
 
                 String title = volumeInfo.getString("title");
-                String url = volumeInfo.getString("infoLink");
                 String pageCount = volumeInfo.getString("pageCount") + " pages";
 
-                books.add(new Book(title, authors, url, pageCount));
+                books.add(new Book(title, authors.toString(), pageCount));
             }
         } catch (JSONException e) {
-            Log.e("QueryUtils", "There was an error during JSON parsing: " + e);
+            Log.e(LOG_TAG, "There was an error during JSON parsing: " + e);
         }
 
         return books;

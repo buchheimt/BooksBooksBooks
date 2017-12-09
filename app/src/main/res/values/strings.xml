@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Books Books Books!</string>
+    <string name="no_search_term">Enter a search term!</string>
+    <string name="no_results">No books were found, try again!</string>
+    <string name="no_connection">No Internet Connection</string>
+    <string name="search_hint">Enter a keyword to search</string>
+    <string name="search">Search!</string>
 </resources>

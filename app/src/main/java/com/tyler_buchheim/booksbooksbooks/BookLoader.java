@@ -2,13 +2,7 @@ package com.tyler_buchheim.booksbooksbooks;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
-
-import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Created by buchh on 12/8/2017.
- */
 
 public class BookLoader extends AsyncTaskLoader<List<Book>>{
 
@@ -29,8 +23,6 @@ public class BookLoader extends AsyncTaskLoader<List<Book>>{
         if (mSearchParam == null) {
             return null;
         }
-
-        ArrayList<Book> books = QueryUtils.fetchBookData(mSearchParam);
-        return books;
+        return QueryUtils.fetchBookData(mSearchParam);
     }
 }
